@@ -1,8 +1,9 @@
 "use client";
+import EnquiryForm from "@/components/EnquiryForm";
 import { trackEvent } from "@/lib/analytics";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -16,8 +17,6 @@ import {
   Phone,
   MessageCircle,
   MoveUpRight,
-  Check,
-  LoaderCircle,
   Plus,
   Minus,
 } from "lucide-react";
@@ -61,14 +60,21 @@ export default function Website() {
     menuButton = useRef<HTMLButtonElement>(null);
   const [menu, setMenu] = useState(false),
     [scrolled, setScrolled] = useState(false),
+    [contactInView, setContactInView] = useState(false),
     [gallery, setGallery] = useState(0),
     [plot, setPlot] = useState(1),
     [feature, setFeature] = useState(0),
-    [step, setStep] = useState(0),
-    [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
-      "idle",
-    ),
-    [feedback, setFeedback] = useState("");
+    [step, setStep] = useState(0);
+  useEffect(() => {
+    const contact = document.getElementById("contact");
+    if (!contact) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setContactInView(entry.isIntersecting),
+      { rootMargin: "-80px 0px -64px 0px" },
+    );
+    observer.observe(contact);
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     const scroll = () => setScrolled(window.scrollY > 40);
     scroll();
@@ -163,34 +169,6 @@ export default function Website() {
     };
   }, [menu]);
   const current = site.plots[plot];
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    if (!form.reportValidity()) return;
-    setStatus("loading");
-    setFeedback("");
-    const data = Object.fromEntries(new FormData(form));
-    try {
-      const response = await fetch("/api/enquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-      trackEvent("generate_lead", { method: "site_visit_form" });
-      setStatus("success");
-      setFeedback(result.message);
-      form.reset();
-    } catch (error) {
-      setStatus("error");
-      setFeedback(
-        error instanceof Error
-          ? error.message
-          : "Unable to send your enquiry. Please try again.",
-      );
-    }
-  }
   const features = [
     [
       "Thoughtfully connected",
@@ -897,99 +875,7 @@ export default function Website() {
                 <MapPin size={15} /> JODHPUR, RAJASTHAN, INDIA
               </span>
             </div>
-            <form onSubmit={submit} className="enquiry-form" data-reveal>
-              <span className="eyebrow">
-                BOOK A SITE VISIT / MAKE AN ENQUIRY
-              </span>
-              <div className="form-row">
-                <label>
-                  Full name <span>*</span>
-                  <input
-                    name="name"
-                    autoComplete="name"
-                    minLength={2}
-                    maxLength={100}
-                    placeholder="Your full name"
-                    required
-                  />
-                </label>
-                <label>
-                  Mobile number <span>*</span>
-                  <input
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    pattern="(?:\+91[ -]?)?[6-9][0-9]{9}"
-                    placeholder="10-digit mobile number"
-                    title="Enter a 10-digit Indian mobile number, optionally prefixed with +91"
-                    required
-                  />
-                </label>
-              </div>
-              <div className="form-row">
-                <label>
-                  Interested project
-                  <select name="project" defaultValue="nh125">
-                    <option value="nh125">Jodhpur–Jaisalmer Road</option>
-                    <option value="unsure">Help me explore</option>
-                  </select>
-                </label>
-                <label>
-                  Preferred plot size
-                  <select name="plot" defaultValue="unsure">
-                    <option value="unsure">I’d like your guidance</option>
-                    {site.plots.map((p) => (
-                      <option value={p.area} key={p.id}>
-                        {p.area} sq. yd. — example
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <label>
-                Anything you’d like us to know? <small>(optional)</small>
-                <textarea
-                  name="message"
-                  maxLength={2000}
-                  rows={3}
-                  placeholder="Tell us about your plans or preferred visit date…"
-                />
-              </label>
-              <div className="honeypot" aria-hidden="true">
-                <label>
-                  Website
-                  <input name="website" tabIndex={-1} autoComplete="off" />
-                </label>
-              </div>
-              <p className="privacy-note">
-                By submitting, you agree to be contacted about your enquiry.
-                Read our <Link href="/privacy">privacy policy</Link>.
-              </p>
-              <button
-                className="button dark"
-                type="submit"
-                disabled={status === "loading"}
-              >
-                {status === "loading" ? (
-                  <>
-                    Sending enquiry <LoaderCircle className="spin" size={17} />
-                  </>
-                ) : (
-                  <>
-                    Request a Site Visit <Arrow />
-                  </>
-                )}
-              </button>
-              {feedback && (
-                <p
-                  className={`form-feedback ${status}`}
-                  role={status === "error" ? "alert" : "status"}
-                >
-                  {status === "success" && <Check size={18} />} {feedback}
-                </p>
-              )}
-            </form>
+            <EnquiryForm />
           </div>
         </section>
       </main>
@@ -1032,7 +918,10 @@ export default function Website() {
           </p>
         </div>
       </footer>
-      <div className="mobile-contact">
+      <div
+        className={`mobile-contact ${contactInView ? "contact-in-view" : ""}`}
+        aria-hidden={contactInView}
+      >
         <a href={site.phone ? `tel:${site.phone}` : "#contact"}>
           <Phone size={17} />
           Call Now{!site.phone && <small>Enquire</small>}

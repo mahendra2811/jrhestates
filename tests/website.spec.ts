@@ -35,7 +35,7 @@ for (const width of [360, 375, 390, 430, 768, 1440]) {
     expect(errors).toEqual([]);
   });
 }
-test("Gallery, plot selection, feature accordion and honest form error", async ({
+test("Gallery, plot selection, feature accordion and WhatsApp configuration error", async ({
   page,
 }) => {
   await page.goto("/");
@@ -51,10 +51,27 @@ test("Gallery, plot selection, feature accordion and honest form error", async (
   await expect(page.locator("#feature-2")).toBeVisible();
   await page.locator("[name=name]").fill("Test Visitor");
   await page.locator("[name=phone]").fill("9876543210");
-  await page.getByRole("button", { name: "Request a Site Visit" }).click();
-  await expect(page.locator(".form-feedback")).toContainText(
-    "Your enquiry has not been sent",
-  );
+  const whatsappConfigured =
+    (await page.locator('.contact-links a[href^="https://wa.me/"]').count()) >
+    0;
+  let draft = "";
+  await page.route("https://wa.me/**", (route) => {
+    draft = new URL(route.request().url()).searchParams.get("text") || "";
+    return route.fulfill({
+      contentType: "text/html",
+      body: "<h1>WhatsApp draft stub</h1>",
+    });
+  });
+  await page.getByRole("button", { name: "Continue on WhatsApp" }).click();
+  if (whatsappConfigured) {
+    await expect.poll(() => draft).toContain("Full name: Test Visitor");
+    expect(draft).toContain("Mobile number: 9876543210");
+    await page.goto("/");
+  } else {
+    await expect(page.locator(".form-feedback")).toContainText(
+      "WhatsApp enquiries are currently unavailable",
+    );
+  }
   for (const image of await page.locator("img").all()) {
     await image.scrollIntoViewIfNeeded();
     await expect

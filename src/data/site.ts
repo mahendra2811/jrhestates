@@ -1,3 +1,4 @@
+import { normalizeWhatsAppRecipient } from "@/lib/whatsapp";
 export const assets = {
   heroDesktop: "/images/hero-desktop.webp",
   heroMobile: "/images/hero-mobile.webp",
@@ -17,7 +18,8 @@ export const site = {
   url: "https://jrhestates.com",
   location: "Jodhpur, Rajasthan",
   phone: process.env.NEXT_PUBLIC_PHONE || "",
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP || "",
+  whatsapp:
+    normalizeWhatsAppRecipient(process.env.NEXT_PUBLIC_WHATSAPP || "") || "",
   maps: "https://www.google.com/maps/search/?api=1&query=Jodhpur%2C+Rajasthan",
   navigation: [
     ["Home", "home"],

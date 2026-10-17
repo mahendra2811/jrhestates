@@ -6,7 +6,11 @@ const app = spawn(
   process.execPath,
   ["node_modules/next/dist/bin/next", "dev", "-p", "3002"],
   {
-    env: { ...process.env, NEXT_PUBLIC_GA_ID: "G-TEST123456" },
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_GA_ID: "G-TEST123456",
+      NEXT_PUBLIC_WHATSAPP: "919876543210",
+    },
     stdio: "inherit",
   },
 );
@@ -32,6 +36,7 @@ try {
       body: "window.__gaLoaded=true;",
     }),
   );
+  await page.route("https://wa.me/**", (route) => route.abort());
   await page.goto("http://127.0.0.1:3002");
   await page.waitForFunction(
     () => window.__gaLoaded && window.dataLayer?.length >= 2,
@@ -45,24 +50,61 @@ try {
   assert.equal(config[2].allow_google_signals, false);
   assert.equal(config[2].allow_ad_personalization_signals, false);
   await page.locator("[name=name]").fill("Test Visitor");
-  await page.locator("[name=phone]").fill("9876543210");
-  await page.route("**/api/enquiry", (route) =>
-    route.fulfill({
-      contentType: "application/json",
-      body: JSON.stringify({ message: "Test delivery accepted." }),
-    }),
+  await page.locator("[name=phone]").fill("123");
+  await page.getByRole("button", { name: "Continue on WhatsApp" }).click();
+  assert.equal(new URL(page.url()).host, "127.0.0.1:3002");
+  assert.equal(
+    await page.locator("[name=phone]").getAttribute("aria-invalid"),
+    "true",
   );
-  await page.getByRole("button", { name: "Request a Site Visit" }).click();
-  await page.waitForFunction(() =>
-    window.dataLayer.some(
-      (entry) => entry[0] === "event" && entry[1] === "generate_lead",
-    ),
-  );
-  const events = await page.evaluate(() => JSON.stringify(window.dataLayer));
+  await page.locator("[name=phone]").fill("+91 98765 43210");
+  await page.locator("[name=plot]").selectOption("150");
+  await page
+    .locator("[name=message]")
+    .fill("A courtyard & garden? Visit on Sunday. धन्यवाद");
+  let draftUrl,
+    events,
+    backendCalled = false;
+  page.on("request", (request) => {
+    if (request.url().includes("/api/enquiry")) backendCalled = true;
+  });
+  page.on("console", (message) => {
+    if (message.text().startsWith("GA_TEST_SNAPSHOT:"))
+      events = message.text().slice("GA_TEST_SNAPSHOT:".length);
+  });
+  await page.evaluate(() => {
+    const original = window.gtag;
+    window.gtag = (...args) => {
+      original(...args);
+      console.debug("GA_TEST_SNAPSHOT:" + JSON.stringify(window.dataLayer));
+    };
+  });
+  await page.route("https://wa.me/**", async (route) => {
+    draftUrl = new URL(route.request().url());
+    await route.fulfill({
+      contentType: "text/html",
+      body: "<h1>WhatsApp destination stub</h1>",
+    });
+  });
+  await page.getByRole("button", { name: "Continue on WhatsApp" }).click();
+  await page.waitForURL("https://wa.me/**");
+  assert.equal(draftUrl.pathname, "/919876543210");
+  const draft = draftUrl.searchParams.get("text");
+  for (const text of [
+    "Full name: Test Visitor",
+    "Mobile number: 9876543210",
+    "Jodhpur–Jaisalmer Road",
+    "150 sq. yd.",
+    "A courtyard & garden? Visit on Sunday. धन्यवाद",
+  ])
+    assert(draft.includes(text));
+  assert.equal(backendCalled, false);
+  assert(events.includes("whatsapp_enquiry_start"));
   assert(!events.includes("9876543210"));
   assert(!events.includes("Test Visitor"));
+  assert(!events.includes("courtyard"));
   console.log(
-    "GA configuration, asynchronous script loading, successful lead event and exclusion of form PII passed. No traffic sent to Google.",
+    "GA loading, form validation, WhatsApp recipient, all draft fields, Unicode encoding, no backend request and analytics PII exclusion passed. No traffic sent to Google or WhatsApp.",
   );
 } finally {
   await browser?.close();

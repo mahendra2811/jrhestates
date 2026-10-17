@@ -2343,3 +2343,261 @@ textarea {
   opacity: 1;
   color: #465b45;
 }
+/* Enquiry form: clear controls, inline feedback and a calm mobile layout. */
+.enquiry-form-refined {
+  border-radius: 6px;
+  padding: 32px;
+  align-self: start;
+  min-width: 0;
+  scroll-margin-top: 100px;
+  box-shadow: 0 16px 55px #6651330c;
+}
+.enquiry-form-heading {
+  margin-bottom: 28px;
+  border-bottom: 1px solid #e4dece;
+  padding-bottom: 24px;
+}
+.enquiry-form-heading h3 {
+  font-size: 37px;
+  letter-spacing: -0.6px;
+  margin-top: 14px;
+  color: var(--green);
+}
+.enquiry-form-heading > p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 9px;
+  color: #626456;
+}
+.whatsapp-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #e9eee6;
+  color: #214937;
+  padding: 7px 10px;
+  border-radius: 3px;
+  font-size: 10px;
+  margin-top: 17px;
+}
+.enquiry-form-refined .form-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.enquiry-field {
+  min-width: 0;
+  margin-bottom: 21px;
+}
+.enquiry-form-refined .enquiry-field > label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.enquiry-field label > span {
+  color: #786141;
+}
+.enquiry-field label > small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #65685b;
+  margin-left: 4px;
+}
+.enquiry-form-refined input,
+.enquiry-form-refined select,
+.enquiry-form-refined textarea {
+  width: 100%;
+  background: #fffdf8;
+  border: 1px solid #d5cebd;
+  border-radius: 4px;
+  padding: 13px 12px;
+  min-height: 49px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #26392e;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.enquiry-form-refined select {
+  padding-right: 27px;
+  font-size: 11px;
+  text-overflow: ellipsis;
+}
+.enquiry-form-refined textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+.enquiry-form-refined input::placeholder,
+.enquiry-form-refined textarea::placeholder {
+  font-size: 12px;
+  color: #737769;
+  opacity: 1;
+}
+.enquiry-form-refined input:focus,
+.enquiry-form-refined select:focus,
+.enquiry-form-refined textarea:focus {
+  outline: none;
+  border-color: #315844;
+  box-shadow: 0 0 0 3px #31584416;
+}
+.enquiry-form-refined [aria-invalid="true"] {
+  border-color: #a1412e;
+  background: #fff9f5;
+}
+.enquiry-form-refined .field-hint {
+  margin: 7px 0 0;
+  font-size: 9px;
+  line-height: 1.6;
+  color: #626657;
+}
+.enquiry-form-refined .field-error {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #913a26;
+  margin-top: 7px;
+}
+.enquiry-form-refined > .button {
+  font-size: 12px;
+  gap: 12px;
+  min-height: 54px;
+  padding: 16px 18px;
+  border-radius: 3px;
+  scroll-margin-bottom: 110px;
+}
+.enquiry-form-refined > .button > span {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.whatsapp-send-note {
+  font-size: 10px;
+  text-align: center;
+  line-height: 1.8;
+  margin-top: 13px;
+  color: #5e6455;
+}
+.enquiry-form-refined > .privacy-note {
+  margin: 20px 0 0;
+  padding-top: 17px;
+  border-top: 1px solid #e4dece;
+  font-size: 9px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #626657;
+  line-height: 1.8;
+}
+.enquiry-form-refined > .privacy-note > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #49634e;
+}
+.whatsapp-fallback {
+  margin-top: 18px;
+  background: #edf1e8;
+  border: 1px solid #cbd7c5;
+  padding: 14px;
+  border-radius: 4px;
+}
+.whatsapp-fallback p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #40563d;
+}
+.whatsapp-fallback a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-top: 7px;
+  color: var(--green);
+}
+@media (min-width: 601px) and (max-width: 1100px) {
+  .enquiry-form-refined .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .enquiry-form-refined {
+    padding: 25px;
+  }
+  .enquiry-form-heading h3 {
+    font-size: 33px;
+  }
+}
+@media (max-width: 600px) {
+  .contact {
+    padding-bottom: 88px;
+  }
+  .enquiry-form-refined {
+    padding: 25px 20px;
+    margin-top: 32px;
+  }
+  .enquiry-form-heading {
+    margin-bottom: 24px;
+    padding-bottom: 22px;
+  }
+  .enquiry-form-heading h3 {
+    font-size: 34px;
+  }
+  .enquiry-form-heading > p {
+    font-size: 12px;
+  }
+  .enquiry-form-heading .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.3px;
+  }
+  .enquiry-form-refined .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .enquiry-field {
+    margin-bottom: 20px;
+  }
+  .enquiry-form-refined .enquiry-field > label {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  .enquiry-form-refined input,
+  .enquiry-form-refined select,
+  .enquiry-form-refined textarea {
+    font-size: 16px;
+    min-height: 52px;
+    padding: 14px 12px;
+  }
+  .enquiry-form-refined select {
+    font-size: 13px;
+    padding-right: 26px;
+  }
+  .enquiry-form-refined input::placeholder,
+  .enquiry-form-refined textarea::placeholder {
+    font-size: 13px;
+  }
+  .enquiry-form-refined .field-hint {
+    font-size: 10px;
+  }
+  .enquiry-form-refined textarea {
+    min-height: 112px;
+  }
+  .whatsapp-send-note {
+    font-size: 11px;
+    text-align: left;
+  }
+  .enquiry-form-refined > .privacy-note {
+    font-size: 10px;
+  }
+  .enquiry-form-refined > .button {
+    font-size: 12px;
+  }
+}
+@media (max-width: 600px) and (max-height: 500px) {
+  .mobile-contact {
+    display: none;
+  }
+}
+.mobile-contact.contact-in-view {
+  display: none;
+}

@@ -14,10 +14,13 @@ export default function Privacy() {
       </p>
       <h2>How enquiries are handled</h2>
       <p>
-        Enquiries are transmitted only when a lead delivery service is
-        configured. If delivery is unavailable, the form displays an error and
-        does not claim your request has been received. Submitted information may
-        be processed by the configured service provider for this purpose.
+        The enquiry form opens WhatsApp with your name, mobile number, project
+        and plot preferences, and optional message prefilled. Your enquiry is
+        sent to the configured JRH Estates business number only when you tap
+        Send in WhatsApp. The form does not submit your details to this
+        website’s backend. If WhatsApp is unavailable, no message is sent.
+        WhatsApp processes the information you choose to send under its own
+        privacy policy.
       </p>
       <h2>Website analytics</h2>
       <p>

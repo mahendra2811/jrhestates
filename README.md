@@ -18,10 +18,9 @@ Copy `.env.example` to `.env.local` and supply:
 
 - `NEXT_PUBLIC_PHONE`: real business number including country prefix.
 - `NEXT_PUBLIC_WHATSAPP`: real WhatsApp number including country code.
-- `LEAD_WEBHOOK_URL`: HTTPS service accepting a JSON POST. Only an HTTP success response causes the form to confirm delivery.
-- `LEAD_WEBHOOK_SECRET`: optional Bearer authentication secret.
+  The enquiry form validates input and redirects to WhatsApp with all entered details in a readable draft. The visitor must tap **Send** in WhatsApp; opening a chat does not mean a message was delivered. No webhook is needed for this form. If the business WhatsApp number is missing or invalid, the form displays a clear error and keeps the entered details. A 10-digit Indian business number is automatically prefixed with 91; international numbers should include their country code.
 
-Webhook payload: `name`, `phone`, `project`, `plot`, `message`, `source`, `submittedAt`. Store or deliver the lead before returning 2xx. Use infrastructure-level rate limiting for the API route in production. Without a webhook, the API returns 503 and the UI explicitly says no enquiry was sent. No leads are stored locally. Review the privacy text against your final provider and retention practices.
+The optional `/api/enquiry` webhook route remains available for future integrations; it is not called by the WhatsApp form. `LEAD_WEBHOOK_URL` and `LEAD_WEBHOOK_SECRET` configure that separate route only.
 
 Before contact numbers are configured, contact actions point to the enquiry section and contact text explains that details are coming soon. Set public values before building.
 
@@ -39,4 +38,8 @@ The development-only Next ESLint glob dependency currently has an upstream brace
 
 Set `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX` in `.env.local` (or your hosting environment), then restart development or rebuild production. Use your GA4 web stream measurement ID, not an API secret. No Google scripts load when the value is missing or malformed.
 
-The Google tag loads after hydration, records its initial page view, and can track client-side page navigation through GA4 Enhanced Measurement (enable browser-history page views in your web stream). Anchor scrolling does not represent a new page. Custom events: `generate_lead` only after confirmed webhook delivery; `contact_click` for configured phone and WhatsApp links. No form names, numbers or messages are sent. Google signals and advertising personalisation are disabled. Run `node scripts/verify-analytics.mjs` to verify script loading and the lead event with a stubbed Google library. Verify your real ID in GA4 Realtime or Tag Assistant after deployment. Implementation follows https://developers.google.com/tag-platform/gtagjs.
+The Google tag loads after hydration, records its initial page view, and can track client-side page navigation through GA4 Enhanced Measurement (enable browser-history page views in your web stream). Anchor scrolling does not represent a new page. Custom events: `whatsapp_enquiry_start` when the completed form opens a WhatsApp draft (not confirmed delivery); `contact_click` for configured phone and WhatsApp links. No form names, numbers or messages are sent. Google signals and advertising personalisation are disabled. Run `node scripts/verify-analytics.mjs` to verify script loading and the WhatsApp handoff event with a stubbed Google library. Verify your real ID in GA4 Realtime or Tag Assistant after deployment. Implementation follows https://developers.google.com/tag-platform/gtagjs.
+
+## WhatsApp form validation
+
+The form accepts 10-digit Indian mobile numbers with spaces or hyphens, optional +91 / 91 / 0091 country prefixes, or a leading 0. It normalises the visitor number for the message, shows field-specific errors, and preserves input while errors are corrected. There is no hidden website field in this client-only WhatsApp flow, so browser autofill cannot accidentally block an enquiry. The floating mobile contact bar hides while the contact section is visible. A fallback draft link is shown if the browser does not hand off to WhatsApp. Analytics failures cannot prevent submission.
